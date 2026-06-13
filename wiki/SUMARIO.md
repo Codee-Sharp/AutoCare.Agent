@@ -17,6 +17,7 @@ d:\AutoCare.Agent\
    ├─ README.md                       (Índice da wiki)
    ├─ COMECE_AQUI.md                  ⭐ (Porta de entrada)
    ├─ INDEX.md                        (Índice completo e guia de leitura)
+   ├─ STACK_REAL.md                   🔧 (Stack tecnológico + integração)
    ├─ RESUMO_EXECUTIVO.md             (Para gestores/stakeholders)
    ├─ VISAO_GERAL.md                  (Diagramas e visualizações)
    ├─ ARQUITETURA.md                  (Estrutura técnica)
@@ -61,7 +62,31 @@ d:\AutoCare.Agent\
 
 ---
 
-### 3. **wiki/COMECE_AQUI.md** ⭐
+### 3. **wiki/STACK_REAL.md** 🔧
+**Stack Tecnológico + Integração com Aplicação Interna** ⭐ **LEITURA CRÍTICA**
+
+- **Arquitetura Real**: Agent atras de aplicação interna
+- **Stack Completo**:
+  - Backend: Python + LangGraph + Google Composer 2
+  - Cache: Redis (local)
+  - DB: PostgreSQL (gerenciado pela app interna)
+  - Messaging: Integracao REST
+- **Responsabilidades por Camada**: O que faz quem
+- **Fluxo de Requisição**: Exemplo completo de agendamento
+- **Interface REST**: POST /agent/process com contratos
+- **Orquestração LangGraph**: Estrutura de estados e edges
+- **Segurança**: Rate limiting, timeouts, dados sensveis
+- **Deployment**: Docker, Kubernetes, variáveis de ambiente
+- **Performance**: Benchmarks esperados
+- **Troubleshooting**: Problemas comuns e soluções
+
+**Público**: Todos (especialmente desenvolvedores e arquitetos)  
+**Tempo de leitura**: 45 min  
+**Próximo**: ARQUITETURA.md para detalhes de cada camada
+
+---
+
+### 4. **wiki/COMECE_AQUI.md** ⭐
 🚀 **Porta de Entrada Personalizada**
 
 - Guia por perfil (7 opciones)
@@ -77,7 +102,7 @@ d:\AutoCare.Agent\
 
 ---
 
-### 4. **wiki/INDEX.md**
+### 5. **wiki/INDEX.md**
 📑 **Índice Completo e Guia de Leitura**
 
 - Guia para 7 diferentes personas
@@ -93,7 +118,7 @@ d:\AutoCare.Agent\
 
 ---
 
-### 5. **wiki/RESUMO_EXECUTIVO.md**
+### 6. **wiki/RESUMO_EXECUTIVO.md**
 📊 **Para Gestores e Stakeholders**
 
 - O que é (em termos simples)
@@ -113,7 +138,7 @@ d:\AutoCare.Agent\
 
 ---
 
-### 6. **wiki/VISAO_GERAL.md**
+### 7. **wiki/VISAO_GERAL.md**
 🎨 **Diagramas e Visualizações**
 
 - Arquitetura em camadas
@@ -134,7 +159,7 @@ d:\AutoCare.Agent\
 
 ---
 
-### 7. **wiki/ARQUITETURA.md**
+### 8. **wiki/ARQUITETURA.md**
 🏗️ **Estrutura Técnica Detalhada**
 
 **Seções principais**:

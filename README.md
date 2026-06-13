@@ -27,37 +27,61 @@ Automatizar e otimizar o atendimento ao paciente através de:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    PACIENTE / USUÁRIO                       │
-│              (Whatsapp, Chat, Aplicativo, etc)              │
+│            APLICAÇÃO INTERNA (Orquestradora)                │
+│  • Recebe requests de múltiplas fontes                       │
+│  • Gerencia persistência, pagamentos, notificações         │
+│  • Orquestra chamadas ao Agent via REST                     │
 └────────────────────────┬────────────────────────────────────┘
-                         │
+                         │ REST API
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│           AGENTE AUTÔNOMO (LLM + Orquestração)              │
+│   AGENTE AUTÔNOMO LLM (Backend - Python + LangGraph)       │
+│  • Google Composer 2 (OpenAI/Claude compatible)            │
 │  • System Prompt Dinâmico                                   │
 │  • Injeção de Contexto do Paciente                          │
 │  • Roteamento de Persona                                    │
 │  • Detecção de Intenções & Crises                          │
+│  • Redis Cache (contexto de sessão)                        │
 └────────────────────────┬────────────────────────────────────┘
                          │
          ┌───────────────┼───────────────┐
          ▼               ▼               ▼
     ┌────────┐    ┌────────┐     ┌────────┐
     │ Tools  │    │ Safety │     │Handlers│
-    │(APIs)  │    │Filters │     │(Fallback)
+    │(REST)  │    │Filters │     │(Fallback)
     └────────┘    └────────┘     └────────┘
          │               │               │
          └───────────────┼───────────────┘
-                         │
+                         │ REST
                          ▼
-         ┌───────────────────────────────┐
-         │   BACKEND & BANCO DE DADOS    │
-         │  • Pacientes                  │
-         │  • Agendamentos               │
-         │  • Serviços & Preços          │
-         │  • Regras de Desconto         │
-         │  • Disponibilidade            │
-         └───────────────────────────────┘
+    ┌────────────────────────────────────┐
+    │   Aplicação Interna (APIs)         │
+    │  • PostgreSQL (estado crítico)      │
+    │  • Payment Processor                │
+    │  • Messaging Queue                  │
+    └────────────────────────────────────┘
+```
+
+### ⚠️ Nota Importante sobre Arquitetura
+
+**O AutoCare Agent NÃO é uma aplicação monolítica**. Ele é um **microser viço especializado em IA**:
+
+1. **Aplicação Interna**: Funciona como orquestradora central
+   - Recebe requisições de múltiplas fontes (pacientes, web, mobile, etc)
+   - Gerencia estado, persistência crítica, pagamentos e notificações
+   - Mantém a lógica complexa de negócio em nível de banco de dados
+
+2. **AutoCare Agent**: Processa conversas via LLM
+   - Recebe requisições REST da aplicação interna com contexto injetado
+   - Executa orquestração de fluxos via LangGraph
+   - Chama APIs da aplicação interna para dados e ações
+   - Retorna respostas estruturadas (texto + ações requeridas)
+   - Não persiste dados diretamente no BD
+
+3. **Fluxo de Integração**:
+```
+Paciente → App Interna → Agent LLM → App Interna → Paciente
+         (recebe)      (processa)    (persiste)   (responde)
 ```
 
 ---
@@ -109,11 +133,12 @@ Automatizar e otimizar o atendimento ao paciente através de:
 
 Para entender como o sistema funciona em detalhe, consulte:
 
-1. **[ARQUITETURA.md](./wiki/ARQUITETURA.md)** - Componentes técnicos e padrões
-2. **[FLUXOS_PRINCIPAIS.md](./wiki/FLUXOS_PRINCIPAIS.md)** - Detalhamento de cada fluxo com sequências
-3. **[REGRAS_NEGOCIO.md](./wiki/REGRAS_NEGOCIO.md)** - Todas as regras de negócio e validações
-4. **[COMPONENTES.md](./wiki/COMPONENTES.md)** - Estrutura de APIs, dados e modelos
-5. **[GLOSSARIO.md](./wiki/GLOSSARIO.md)** - Termos técnicos e de negócio
+1. **[STACK_REAL.md](./wiki/STACK_REAL.md)** - Stack tecnológico + integração com aplicação interna ⭐ **COMECE AQUI**
+2. **[ARQUITETURA.md](./wiki/ARQUITETURA.md)** - Componentes técnicos e padrões
+3. **[FLUXOS_PRINCIPAIS.md](./wiki/FLUXOS_PRINCIPAIS.md)** - Detalhamento de cada fluxo com sequências
+4. **[REGRAS_NEGOCIO.md](./wiki/REGRAS_NEGOCIO.md)** - Todas as regras de negócio e validações
+5. **[COMPONENTES.md](./wiki/COMPONENTES.md)** - Estrutura de APIs, dados e modelos
+6. **[GLOSSARIO.md](./wiki/GLOSSARIO.md)** - Termos técnicos e de negócio
 
 ---
 
@@ -151,15 +176,28 @@ Para entender como o sistema funciona em detalhe, consulte:
 
 ---
 
-## 🔗 Stack Tecnológico (Esperado)
+## 🔗 Stack Tecnológico
 
-- **LLM**: OpenAI API, Claude ou similar
-- **Orquestração**: Framework de agentes (ex: AutoGen, LangChain, ou custom)
-- **Backend**: Node.js, Python, .NET ou similar
-- **Banco de Dados**: PostgreSQL, MongoDB ou similar
-- **APIs**: REST, GraphQL
-- **Payment Gateway**: Stripe, MercadoPago, PIX integrado
-- **Messaging**: Whatsapp Business API, SMS, E-mail
+### Componentes Principais
+- **LLM**: Google Composer 2 (com compatibilidade OpenAI/Claude)
+- **Orquestração**: LangGraph
+- **Backend**: Python
+- **Banco de Dados**: PostgreSQL
+- **APIs**: REST
+
+### Integração com Aplicação Interna
+- **Payment Gateway**: Chamada à aplicação interna via API
+- **Messaging**: Recepção de requests da aplicação interna
+- **Broker**: Aplicação interna atua como orquestradora central
+- **Comunicação**: REST com polling/webhooks
+
+### Nota Arquitetural
+O **AutoCare Agent roda atrás de uma aplicação interna existente** que:
+- Recebe requisições de múltiplas fontes
+- Orquestra chamadas ao agent via API REST
+- Gerencia estado, persistência e transações críticas
+- Processa pagamentos internamente
+- Distribui notificações via messaging interno
 
 ---
 

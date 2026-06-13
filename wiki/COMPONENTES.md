@@ -668,6 +668,8 @@ eventEmitter.on(EventoTipo.CRISE_DETECTADA, (evento) => {
 
 ### 4.1 Tool: Buscar Disponibilidade
 
+**Nota**: As Tools fazem chamadas REST para a aplicação interna, não consultam BD diretamente.
+
 ```typescript
 interface ToolBuscaDisponibilidade {
   name: 'buscar_disponibilidade';
@@ -680,6 +682,11 @@ interface ToolBuscaDisponibilidade {
     periodo?: string; // 'manhã', 'tarde', 'qualquer'
   };
 }
+
+// Execução interna:
+// 1. Agent faz chamada REST → /api/agendamentos/disponibilidade
+// 2. App Interna executa lógica e retorna slots
+// 3. Agent processa resposta e apresenta ao paciente
 
 // Resposta esperada
 interface ToolResposta {

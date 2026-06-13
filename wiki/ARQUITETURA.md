@@ -2,10 +2,103 @@
 
 ## Visão Geral Técnica
 
-O AutoCare Agent é construído sobre uma arquitetura em **camadas** que separa claramente:
+O AutoCare Agent é construído como um **microserviço especializado em IA** que fica **atrás de uma aplicação interna existente**, com separação clara:
+
 1. **Camada de Interação** (LLM + Orquestração)
-2. **Camada de Aplicação** (Lógica de Negócio)
-3. **Camada de Dados** (Persistência)
+2. **Camada de Integração** (REST API com aplicação interna)
+3. **Camada de Cache** (Redis local)
+
+A **Aplicação Interna** é responsável por:
+- Receber requisições de múltiplas fontes
+- Orquestrar chamadas ao Agent
+- Gerenciar estado e persistência
+- Processar pagamentos
+- Distribuir notificações
+
+---
+
+## 0. Integração com Aplicação Interna
+
+### 0.1 Posicionamento Arquitetural
+
+O Agent NÃO funciona de forma isolada. Ele é um **microserviço consumidor** que:
+- Recebe requests REST da aplicação interna
+- Processa conversas via LLM
+- Retorna respostas estruturadas
+- Consulta APIs da aplicação interna para dados críticos
+
+```
+┌─────────────────────────────────────────┐
+│  Aplicação Interna (Orquestradora)      │
+│  ├─ REST endpoints                      │
+│  ├─ Banco PostgreSQL                    │
+│  ├─ Payment processor                   │
+│  └─ Messaging queue                     │
+└────────────┬────────────────────────────┘
+             │ REST
+             ▼
+┌─────────────────────────────────────────┐
+│  AutoCare Agent (LLM Processor)         │
+│  ├─ Python + LangGraph                  │
+│  ├─ LLM Client (Composer 2)             │
+│  ├─ Tool Calling                        │
+│  └─ Redis Cache (local)                 │
+└─────────────────────────────────────────┘
+```
+
+### 0.2 Interface REST do Agent
+
+```typescript
+/**
+ * POST /agent/process
+ * Processa uma mensagem de paciente
+ */
+interface ProcessRequest {
+  paciente_id: UUID;
+  sessao_id: UUID;
+  mensagem: string;
+  contexto?: Record<string, any>; // Injetado pela app interna
+}
+
+interface ProcessResponse {
+  sucesso: boolean;
+  resposta_texto: string;
+  intenção: string; // 'agendamento', 'cancelamento', etc
+  ações_requeridas?: Array<{
+    tipo: string; // 'confirmar_agendamento', 'chamar_api', etc
+    parametros: Record<string, any>;
+  }>;
+  dossiê_handoff?: object; // Se vai transferir para humano
+  alerta_crise?: { tipo: string; contatos: string[] }; // Se detectada crise
+}
+```
+
+### 0.3 Fluxo de Integração
+
+```
+Paciente envia mensagem
+        ↓
+App Interna recebe
+        ↓
+App Interna → GET /api/pacientes/{id}
+(recupera contexto do paciente)
+        ↓
+App Interna → POST /agent/process
+(envia mensagem + contexto)
+        ↓
+Agent LLM processa
+(LangGraph + LLM)
+        ↓
+Agent → GET /api/agendamentos/{paciente_id}
+(se precisa de dados)
+        ↓
+Agent retorna resposta estruturada
+        ↓
+App Interna processa ações
+(confirma agendamento, processa pagamento, etc)
+        ↓
+App Interna envia resposta ao paciente
+```
 
 ---
 
@@ -15,29 +108,49 @@ O AutoCare Agent é construído sobre uma arquitetura em **camadas** que separa 
 
 **Objetivo**: Manter uma conversa natural com o paciente, contextualizada e segura.
 
-**Componentes**:
-- **LLM Client**: Interface com OpenAI/Claude/etc
-- **System Prompt Manager**: Injeção dinâmica de contexto
-- **Message History Manager**: Manutenção de histórico conversacional
+**Stack**:
+- **Framework**: LangGraph (orquestração de fluxos)
+- **LLM**: Google Composer 2 (com compatibilidade OpenAI/Claude)
+- **Componentes**:
+  - **LLM Client**: Interface com Composer 2
+  - **System Prompt Manager**: Injeção dinâmica de contexto
+  - **Message History Manager**: Manutenção de histórico conversacional
 
-**Fluxo**:
+**Fluxo (via LangGraph)**:
 ```
 Mensagem do Paciente
         ↓
-[1] Recuperar Perfil do Paciente (DB)
+[LangGraph Graph Definition]
         ↓
-[2] Construir System Prompt Dinâmico:
+[Node 1] Recuperar Perfil do Paciente
+(via API aplicação interna)
+        ↓
+[Node 2] Construir System Prompt Dinâmico:
     - Dados do paciente (nome, histórico)
     - Persona (clínico vs. comercial)
     - Restrições de segurança
     - Tools disponíveis
         ↓
-[3] Injetar Histórico de Contexto
+[Node 3] Intent Detection + Safety Check
+(paralelo com LLM)
         ↓
-[4] Chamar LLM com Função Calling
+[Node 4] IF Crise:
+    → CALL Protocolo Emergência
+    ELSE:
+    → [Node 5] Chamar Composer 2 com Tool Calling
         ↓
-Resposta Estruturada (text + tool_calls)
+[Node 6] Tool Calling Handler
+(executar ações via API interna)
+        ↓
+Resposta Estruturada (text + tool_results)
 ```
+
+**Arquitetura LangGraph**:
+- Grafo de estados bem definido
+- Nodes para cada etapa do fluxo
+- Edges com condições (IF/ELSE)
+- Suporte a paralelização (safety check)
+- Persistência de estado entre mensagens
 
 **Safety Filters**:
 - ✅ Apenas responder sobre serviços catalogados

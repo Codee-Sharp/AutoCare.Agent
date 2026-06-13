@@ -6,8 +6,7 @@ Documentação completa e estruturada do projeto **AutoCare Agent**.
 
 ```
 wiki/
-├── INDEX.md                 # 📑 Índice e guia de leitura (COMECE AQUI!)
-├── ARQUITETURA.md          # 🏗️  Estrutura técnica e padrões
+├── INDEX.md                 # 📑 Índice e guia de leitura (COMECE AQUI!)├── STACK_REAL.md           # 🔧 Stack tecnológico + integração (ARQUITETURA REAL)├── ARQUITETURA.md          # 🏗️  Estrutura técnica e padrões
 ├── FLUXOS_PRINCIPAIS.md    # 📊 Detalhamento de todos os 12 fluxos
 ├── REGRAS_NEGOCIO.md       # 📋 Regras parametrizadas e políticas
 ├── COMPONENTES.md          # 🔧 APIs, modelos de dados e interfaces
@@ -17,6 +16,9 @@ wiki/
 ---
 
 ## 🎯 Comece Por Aqui
+
+### 0️⃣ **Stack Tecnológico Real** (15 min) 🌟 **IMPORTANTE**
+→ Leia: [STACK_REAL.md](./STACK_REAL.md) - Entenda que o Agent fica ATRÃS de uma aplicação interna
 
 ### 1️⃣ **Entender o Projeto** (10 min)
 → Leia: [INDEX.md](./INDEX.md#-comece-por-aqui)
