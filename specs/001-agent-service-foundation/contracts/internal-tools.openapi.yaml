@@ -1,0 +1,89 @@
+openapi: 3.1.0
+info:
+  title: Internal Application Tool Contracts Consumed by AutoCare Agent
+  version: 1.0.0
+x-agent-proposed-actions:
+  - confirmar_agendamento
+  - cancelar_agendamento
+x-agent-proposed-actions-note: >-
+  These state-changing contracts are returned to the internal application as
+  ProposedAction payloads and are never invoked by the Agent.
+paths:
+  /tools/buscar-disponibilidade:
+    post:
+      operationId: buscarDisponibilidade
+      x-agent-mode: query
+      requestBody:
+        $ref: "#/components/requestBodies/ToolRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ToolResponse"
+  /tools/consultar-servico:
+    post:
+      operationId: consultarServico
+      x-agent-mode: query
+      requestBody:
+        $ref: "#/components/requestBodies/ToolRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ToolResponse"
+  /tools/validar-desconto:
+    post:
+      operationId: validarDesconto
+      x-agent-mode: query
+      requestBody:
+        $ref: "#/components/requestBodies/ToolRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ToolResponse"
+  /tools/listar-agendamentos:
+    post:
+      operationId: listarAgendamentos
+      x-agent-mode: query
+      requestBody:
+        $ref: "#/components/requestBodies/ToolRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ToolResponse"
+components:
+  requestBodies:
+    ToolRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [contract_version, request_id, paciente_id, parametros]
+            properties:
+              contract_version:
+                const: "1.0"
+              request_id:
+                type: string
+                format: uuid
+              paciente_id:
+                type: string
+                format: uuid
+              parametros:
+                type: object
+  responses:
+    ToolResponse:
+      description: Validated authoritative query result
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [contract_version, request_id, status]
+            properties:
+              contract_version:
+                const: "1.0"
+              request_id:
+                type: string
+                format: uuid
+              status:
+                enum: [success, unavailable, invalid_request]
+              data:
+                type: object
+              error_code:
+                type: string
