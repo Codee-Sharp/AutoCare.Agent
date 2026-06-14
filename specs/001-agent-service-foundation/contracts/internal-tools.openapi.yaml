@@ -1,0 +1,153 @@
+openapi: 3.1.0
+info:
+  title: Internal Application Tool Contracts Consumed by AutoCare Agent
+  version: 1.0.0
+x-agent-proposed-actions:
+  - confirmar_agendamento
+  - cancelar_agendamento
+x-agent-proposed-actions-note: >-
+  These state-changing contracts are returned to the internal application as
+  ProposedAction payloads and are never invoked by the Agent.
+paths:
+  /tools/buscar-disponibilidade:
+    post:
+      operationId: buscarDisponibilidade
+      x-agent-mode: query
+      requestBody:
+        $ref: "#/components/requestBodies/ToolRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ToolResponse"
+  /tools/consultar-servico:
+    post:
+      operationId: consultarServico
+      x-agent-mode: query
+      requestBody:
+        $ref: "#/components/requestBodies/ToolRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ToolResponse"
+  /tools/validar-desconto:
+    post:
+      operationId: validarDesconto
+      x-agent-mode: query
+      requestBody:
+        $ref: "#/components/requestBodies/ToolRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ToolResponse"
+  /tools/listar-agendamentos:
+    post:
+      operationId: listarAgendamentos
+      x-agent-mode: query
+      requestBody:
+        $ref: "#/components/requestBodies/ToolRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ToolResponse"
+components:
+  requestBodies:
+    ToolRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [contract_version, request_id, paciente_id, parametros]
+            properties:
+              contract_version:
+                const: "1.0"
+              request_id:
+                type: string
+                format: uuid
+              paciente_id:
+                type: string
+                format: uuid
+              parametros:
+                oneOf:
+                  - $ref: "#/components/schemas/AvailabilityParams"
+                  - $ref: "#/components/schemas/ServiceParams"
+                  - $ref: "#/components/schemas/DiscountParams"
+                  - $ref: "#/components/schemas/AppointmentListParams"
+  responses:
+    ToolResponse:
+      description: Validated authoritative query result
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [contract_version, request_id, status]
+            properties:
+              contract_version:
+                const: "1.0"
+              request_id:
+                type: string
+                format: uuid
+              status:
+                enum: [success, unavailable, invalid_request]
+              data:
+                oneOf:
+                  - $ref: "#/components/schemas/AvailabilityResult"
+                  - $ref: "#/components/schemas/ServiceResult"
+                  - $ref: "#/components/schemas/DiscountResult"
+                  - $ref: "#/components/schemas/AppointmentListResult"
+              error_code:
+                type: string
+  schemas:
+    AvailabilityParams:
+      type: object
+      additionalProperties: false
+      properties:
+        servico_id: { type: string, format: uuid }
+        data_inicio: { type: string, format: date }
+        data_fim: { type: string, format: date }
+    ServiceParams:
+      type: object
+      additionalProperties: false
+      properties:
+        servico_id: { type: string, format: uuid }
+        termo: { type: string }
+    DiscountParams:
+      type: object
+      additionalProperties: false
+      required: [servico_id]
+      properties:
+        servico_id: { type: string, format: uuid }
+    AppointmentListParams:
+      type: object
+      additionalProperties: false
+      properties:
+        status: { type: string }
+    AvailabilityResult:
+      type: object
+      additionalProperties: false
+      required: [slots]
+      properties:
+        slots:
+          type: array
+          items: { type: object }
+    ServiceResult:
+      type: object
+      additionalProperties: false
+      required: [servico_id, nome]
+      properties:
+        servico_id: { type: string, format: uuid }
+        nome: { type: string }
+        descricao: { type: string }
+    DiscountResult:
+      type: object
+      additionalProperties: false
+      required: [elegivel]
+      properties:
+        elegivel: { type: boolean }
+        descricao: { type: string }
+    AppointmentListResult:
+      type: object
+      additionalProperties: false
+      required: [agendamentos]
+      properties:
+        agendamentos:
+          type: array
+          items: { type: object }

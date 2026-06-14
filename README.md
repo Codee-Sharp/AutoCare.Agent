@@ -28,20 +28,20 @@ Automatizar e otimizar o atendimento ao paciente através de:
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │            APLICAÇÃO INTERNA (Orquestradora)                │
-│  • Recebe requests de múltiplas fontes                       │
-│  • Gerencia persistência, pagamentos, notificações         │
+│  • Recebe requests de múltiplas fontes                      │
+│  • Gerencia persistência, pagamentos, notificações          │
 │  • Orquestra chamadas ao Agent via REST                     │
 └────────────────────────┬────────────────────────────────────┘
                          │ REST API
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│   AGENTE AUTÔNOMO LLM (Backend - Python + LangGraph)       │
-│  • Google Composer 2 (OpenAI/Claude compatible)            │
+│   AGENTE AUTÔNOMO LLM (Backend - Python + LangGraph)        │
+│  • Google Composer 2 (OpenAI/Claude compatible)             │
 │  • System Prompt Dinâmico                                   │
 │  • Injeção de Contexto do Paciente                          │
 │  • Roteamento de Persona                                    │
-│  • Detecção de Intenções & Crises                          │
-│  • Redis Cache (contexto de sessão)                        │
+│  • Detecção de Intenções & Crises                           │
+│  • Redis Cache (contexto de sessão)                         │
 └────────────────────────┬────────────────────────────────────┘
                          │
          ┌───────────────┼───────────────┐
@@ -56,9 +56,9 @@ Automatizar e otimizar o atendimento ao paciente através de:
                          ▼
     ┌────────────────────────────────────┐
     │   Aplicação Interna (APIs)         │
-    │  • PostgreSQL (estado crítico)      │
-    │  • Payment Processor                │
-    │  • Messaging Queue                  │
+    │  • PostgreSQL (estado crítico)     │
+    │  • Payment Processor               │
+    │  • Messaging Queue                 │
     └────────────────────────────────────┘
 ```
 
@@ -198,6 +198,170 @@ O **AutoCare Agent roda atrás de uma aplicação interna existente** que:
 - Gerencia estado, persistência e transações críticas
 - Processa pagamentos internamente
 - Distribui notificações via messaging interno
+
+---
+
+## Executando Localmente
+
+Esta seção descreve o caminho recomendado para o time executar e validar a
+aplicação localmente. Por padrão, o projeto usa o `FakeLLMProvider`, que é
+determinístico e não realiza chamadas externas.
+
+### Pré-requisitos
+
+- Python 3.12
+- Git
+- Docker Desktop e Docker Compose, para executar a aplicação com Redis
+
+Confirme as versões instaladas:
+
+```powershell
+python --version
+docker compose version
+```
+
+### Opção 1: Executar diretamente com Python
+
+Este é o fluxo mais rápido para desenvolvimento. Em `APP_ENV=development`, a
+aplicação usa armazenamento temporário em memória e não exige Redis.
+
+1. Crie e ative um ambiente virtual:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+No Linux ou macOS:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+2. Instale a aplicação e as dependências de desenvolvimento:
+
+```powershell
+python -m pip install -e ".[dev]"
+```
+
+3. Crie a configuração local:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+No Linux ou macOS:
+
+```bash
+cp .env.example .env
+```
+
+Para desenvolvimento sem chamadas externas, mantenha no `.env`:
+
+```env
+APP_ENV=development
+LLM_PROVIDER=fake
+APP_AUTH_TOKEN=local-development-token
+```
+
+4. Inicie a API:
+
+```powershell
+uvicorn autocare_agent.api.app:app --reload --host 0.0.0.0 --port 8000
+```
+
+A documentação interativa estará disponível em
+`http://localhost:8000/docs`.
+
+### Opção 2: Executar com Docker Compose
+
+Este fluxo inicia a aplicação e o Redis. Antes de executar, confirme que o
+Docker Desktop está iniciado.
+
+```powershell
+docker compose up --build
+```
+
+Para executar em segundo plano:
+
+```powershell
+docker compose up --build -d
+docker compose logs -f app
+```
+
+Para encerrar:
+
+```powershell
+docker compose down
+```
+
+O Compose usa `.env.example` por padrão, sem segredos reais. Para testar o
+Composer 2 ou APIs internas, configure as credenciais por variáveis de ambiente
+ou ajuste uma cópia local não versionada.
+
+### Validar a execução
+
+Verifique os health checks:
+
+```powershell
+Invoke-RestMethod http://localhost:8000/health/live
+Invoke-RestMethod http://localhost:8000/health/ready
+```
+
+Envie uma mensagem para o endpoint principal:
+
+```powershell
+$headers = @{
+  Authorization = "Bearer local-development-token"
+  "X-Request-ID" = "018f4d12-3b3d-7cc0-a891-c52f388bc001"
+}
+
+$body = @{
+  contract_version = "1.0"
+  paciente_id = "018f4d12-3b3d-7cc0-a891-c52f388bc002"
+  sessao_id = "018f4d12-3b3d-7cc0-a891-c52f388bc003"
+  mensagem = "Quero conhecer os horários disponíveis."
+  contexto = @{
+    locale = "pt-BR"
+    timezone = "America/Sao_Paulo"
+  }
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+  -Method Post `
+  -Uri http://localhost:8000/agent/process `
+  -Headers $headers `
+  -ContentType "application/json" `
+  -Body $body
+```
+
+### Executar os gates locais
+
+Antes de abrir um pull request, execute:
+
+```powershell
+pytest -q
+ruff check src tests
+ruff format --check src tests
+mypy src
+```
+
+Os testes usam provider fake, sessões em memória e mocks HTTP; não precisam de
+acesso real à rede.
+
+### Problemas comuns
+
+- **`401 unauthorized`**: confirme que o header `Authorization` usa o mesmo
+  valor de `APP_AUTH_TOKEN`.
+- **`/health/ready` retorna `503` no Docker**: confirme que o Redis está saudável
+  com `docker compose ps`.
+- **Falha ao iniciar os containers**: confirme que o Docker Desktop/daemon está
+  em execução.
+- **Porta 8000 ocupada**: encerre o processo existente ou altere o mapeamento de
+  porta no `docker-compose.yml`.
+- **Composer 2 indisponível**: use `LLM_PROVIDER=fake` para desenvolvimento
+  local sem dependências externas.
 
 ---
 

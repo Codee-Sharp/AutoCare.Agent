@@ -1,0 +1,193 @@
+openapi: 3.1.0
+info:
+  title: AutoCare Agent API
+  version: 1.0.0
+paths:
+  /agent/process:
+    post:
+      operationId: processAgentMessage
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProcessRequest"
+      responses:
+        "200":
+          description: Safe processing result, including degraded outcomes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProcessResponse"
+        "422":
+          description: Invalid request contract
+  /health/live:
+    get:
+      operationId: live
+      responses:
+        "200":
+          description: Process is alive
+  /health/ready:
+    get:
+      operationId: ready
+      responses:
+        "200":
+          description: Instance is ready
+        "503":
+          description: Instance is not ready
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    ProcessRequest:
+      type: object
+      additionalProperties: false
+      required: [contract_version, paciente_id, sessao_id, mensagem]
+      properties:
+        contract_version:
+          const: "1.0"
+        paciente_id:
+          type: string
+          format: uuid
+        sessao_id:
+          type: string
+          format: uuid
+        mensagem:
+          type: string
+          minLength: 1
+        contexto:
+          $ref: "#/components/schemas/ConversationContext"
+    ConversationContext:
+      type: object
+      additionalProperties: false
+      properties:
+        nome_preferido:
+          type: string
+        locale:
+          type: string
+        timezone:
+          type: string
+        resumo_sessao:
+          type: string
+        resultado_autoritativo:
+          type: object
+          additionalProperties: false
+          required: [action_id, status]
+          properties:
+            action_id:
+              type: string
+              format: uuid
+            status:
+              enum: [success, rejected, failed]
+            protocolo:
+              type: string
+    ProcessResponse:
+      type: object
+      additionalProperties: false
+      required:
+        [contract_version, sucesso, resposta_texto, intencao, acoes_requeridas, request_id]
+      properties:
+        contract_version:
+          const: "1.0"
+        sucesso:
+          type: boolean
+        resposta_texto:
+          type: string
+          minLength: 1
+        intencao:
+          type: string
+        acoes_requeridas:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProposedAction"
+        dossie_handoff:
+          $ref: "#/components/schemas/HandoffDossier"
+        alerta_crise:
+          $ref: "#/components/schemas/CrisisAlert"
+        request_id:
+          type: string
+          format: uuid
+    ProposedAction:
+      type: object
+      additionalProperties: false
+      required: [action_id, tipo, mode, parametros, request_id]
+      properties:
+        action_id:
+          type: string
+          format: uuid
+        tipo:
+          enum:
+            - buscar_disponibilidade
+            - consultar_servico
+            - validar_desconto
+            - confirmar_agendamento
+            - listar_agendamentos
+            - cancelar_agendamento
+        mode:
+          enum: [query, propose]
+        parametros:
+          oneOf:
+            - $ref: "#/components/schemas/ConfirmActionParams"
+            - $ref: "#/components/schemas/CancelActionParams"
+            - $ref: "#/components/schemas/QueryActionParams"
+        request_id:
+          type: string
+          format: uuid
+    HandoffDossier:
+      type: object
+      additionalProperties: false
+      required: [motivo, intencao, resumo_sanitizado, acoes_pendentes]
+      properties:
+        motivo:
+          type: string
+        intencao:
+          type: string
+        resumo_sanitizado:
+          type: string
+        acoes_pendentes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProposedAction"
+    CrisisAlert:
+      type: object
+      additionalProperties: false
+      required: [tipo, severidade, orientacao_codigo, escalonamento_humano]
+      properties:
+        tipo:
+          type: string
+        severidade:
+          enum: [high, critical]
+        orientacao_codigo:
+          type: string
+        escalonamento_humano:
+          const: true
+    ConfirmActionParams:
+      type: object
+      additionalProperties: false
+      required: [servico_id, slot_id]
+      properties:
+        servico_id: { type: string, format: uuid }
+        slot_id: { type: string, format: uuid }
+    CancelActionParams:
+      type: object
+      additionalProperties: false
+      required: [agendamento_id]
+      properties:
+        agendamento_id: { type: string, format: uuid }
+    QueryActionParams:
+      type: object
+      additionalProperties: false
