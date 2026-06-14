@@ -1,5 +1,14 @@
 # 🏗️ ARQUITETURA DO SISTEMA
 
+> **Nota sobre a implementação atual:** o código executável usa uma arquitetura
+> stateless simplificada. O LangGraph enxuto está em
+> `src/autocare_agent/orchestrator.py`; não há Redis ou clientes REST internos.
+> A aplicação interna envia
+> contexto, mantém estado e executa ações. Consulte o
+> [README](../README.md) e o
+> [guia da arquitetura Python](../docs/guia-arquitetura-python.md). O restante
+> deste documento preserva a visão arquitetural original como roadmap.
+
 ## Visão Geral Técnica
 
 O AutoCare Agent é construído como um **microserviço especializado em IA** que fica **atrás de uma aplicação interna existente**, com separação clara:
@@ -40,7 +49,7 @@ O Agent NÃO funciona de forma isolada. Ele é um **microserviço consumidor** q
 ┌─────────────────────────────────────────┐
 │  AutoCare Agent (LLM Processor)         │
 │  ├─ Python + LangGraph                  │
-│  ├─ LLM Client (Composer 2)             │
+│  ├─ LLM Client (Composer 2.5)           │
 │  ├─ Tool Calling                        │
 │  └─ Redis Cache (local)                 │
 └─────────────────────────────────────────┘
@@ -110,9 +119,9 @@ App Interna envia resposta ao paciente
 
 **Stack**:
 - **Framework**: LangGraph (orquestração de fluxos)
-- **LLM**: Google Composer 2 (com compatibilidade OpenAI/Claude)
+- **LLM**: Google Composer 2.5, único modelo suportado
 - **Componentes**:
-  - **LLM Client**: Interface com Composer 2
+  - **LLM Client**: Interface com Composer 2.5
   - **System Prompt Manager**: Injeção dinâmica de contexto
   - **Message History Manager**: Manutenção de histórico conversacional
 
@@ -137,7 +146,7 @@ Mensagem do Paciente
 [Node 4] IF Crise:
     → CALL Protocolo Emergência
     ELSE:
-    → [Node 5] Chamar Composer 2 com Tool Calling
+    → [Node 5] Chamar Composer 2.5 com Tool Calling
         ↓
 [Node 6] Tool Calling Handler
 (executar ações via API interna)

@@ -88,7 +88,7 @@ Agent: "✅ CONFIRMADO! Protocolo: AG-20260616-001
 ## Tecnologia
 
 **Stack Recomendado**:
-- **LLM**: OpenAI GPT-4 ou Anthropic Claude
+- **LLM**: Google Composer 2.5
 - **Backend**: Node.js, Python ou .NET
 - **Banco**: PostgreSQL + Redis
 - **Pagamento**: Stripe ou MercadoPago

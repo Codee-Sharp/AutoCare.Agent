@@ -127,7 +127,7 @@ Bem-vindo à documentação técnica e de negócios do **AutoCare Agent**! Este 
 4. [GLOSSARIO.md - Termos de IA](./GLOSSARIO.md#termos-técnicos)
 
 **Checklist de Implementação**:
-- ✅ Integração com LLM (OpenAI/Claude)
+- ✅ Integração com Google Composer 2.5
 - ✅ System Prompt dinâmico + context injection
 - ✅ Tool Calling implementation
 - ✅ Intent detection + classification
@@ -139,7 +139,7 @@ Bem-vindo à documentação técnica e de negócios do **AutoCare Agent**! Este 
 
 **Frameworks Recomendados**:
 - LangChain / AutoGen / Custom implementation
-- OpenAI GPT-4 ou Anthropic Claude
+- Google Composer 2.5
 - Vector DB para RAG (Pinecone, Weaviate, etc)
 
 ---
@@ -357,8 +357,7 @@ Formato de sugestão:
 ## 📞 Referências e Links Externos
 
 ### Tecnologias Mencionadas
-- [OpenAI API](https://platform.openai.com/docs)
-- [Anthropic Claude](https://claude.ai)
+- Google Composer 2.5
 - [LangChain](https://python.langchain.com)
 - [PostgreSQL](https://www.postgresql.org/docs/)
 - [Redis](https://redis.io/documentation)

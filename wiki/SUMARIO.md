@@ -67,7 +67,7 @@ d:\AutoCare.Agent\
 
 - **Arquitetura Real**: Agent atras de aplicação interna
 - **Stack Completo**:
-  - Backend: Python + LangGraph + Google Composer 2
+  - Backend: Python + LangGraph + Google Composer 2.5
   - Cache: Redis (local)
   - DB: PostgreSQL (gerenciado pela app interna)
   - Messaging: Integracao REST

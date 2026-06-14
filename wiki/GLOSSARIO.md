@@ -37,7 +37,7 @@ Intervalo recomendado entre procedimentos de um mesmo tipo (ex: limpeza de pele 
 ## Termos Técnicos
 
 ### LLM (Large Language Model)
-Modelo de linguagem de grande escala usado para gerar respostas conversacionais (ex: GPT-4, Claude).
+Modelo de linguagem de grande escala usado para gerar respostas conversacionais. Neste projeto, o único modelo suportado é o Google Composer 2.5.
 
 ### RAG (Retrieval Augmented Generation)
 Técnica que combina busca em base de dados com geração de respostas, mitigando alucinações do LLM.

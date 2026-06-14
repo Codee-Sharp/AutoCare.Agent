@@ -1,8 +1,18 @@
 # 🔧 Stack Tecnológico Real do AutoCare Agent
 
+> **Nota sobre a implementação atual:** a fundação executável foi simplificada
+> para um serviço stateless com FastAPI, LangGraph, Pydantic, HTTPX e um
+> `Orchestrator` explícito. Redis, tool calling e chamadas às APIs internas não
+> fazem parte do código atual; a aplicação interna envia o contexto necessário e
+> continua responsável por integrações e estado. Consulte o
+> [README](../README.md) e o
+> [guia da arquitetura Python](../docs/guia-arquitetura-python.md) como fontes de
+> verdade do código. As seções abaixo preservam a visão original como roadmap de
+> produto.
+
 **Data de Atualização**: Junho 2026  
 **Versão**: 1.0  
-**Status**: Confirmado
+**Status**: Roadmap histórico; implementação atual documentada no README
 
 ---
 
@@ -34,8 +44,7 @@ O AutoCare Agent **não é um sistema monolítico** independente. É um **micros
 │  Stack:                                                      │
 │  • Python (Linguagem)                                        │
 │  • LangGraph (Framework de orquestração)                    │
-│  • Google Composer 2 (LLM principal)                        │
-│    └─ Compatível com OpenAI/Claude (fallback)              │
+│  • Google Composer 2.5 (único LLM suportado)                │
 │  • Redis (Cache local de contexto)                         │
 │                                                             │
 │  Responsabilidades:                                         │
@@ -70,11 +79,7 @@ O AutoCare Agent **não é um sistema monolítico** independente. É um **micros
 {
   "linguagem": "Python 3.10+",
   "framework_orquestracao": "LangGraph",
-  "llm_principal": "Google Composer 2",
-  "llm_fallback": [
-    "OpenAI GPT-4 (compatibilidade)",
-    "Anthropic Claude (compatibilidade)"
-  ],
+  "llm_principal": "Google Composer 2.5",
   "cache_local": "Redis",
   "http_client": "aiohttp ou requests",
   "async": "asyncio",
@@ -127,7 +132,7 @@ O AutoCare Agent **não é um sistema monolítico** independente. É um **micros
         }
       }
 
-3. AGENT LLM (LangGraph + Composer 2)
+3. AGENT LLM (LangGraph + Composer 2.5)
    └─ [Node 1] Recuperar perfil (contexto já injetado)
    └─ [Node 2] System Prompt + Context Injection
    └─ [Node 3] Intent Detection (em paralelo com LLM)
@@ -341,9 +346,7 @@ app = graph.compile()
 ```env
 # LLM
 COMPOSER_API_KEY=xxx
-LLM_MODEL=composer-pro
-FALLBACK_LLM_PROVIDER=openai
-FALLBACK_LLM_KEY=xxx
+COMPOSER_MODEL=composer-2.5
 
 # Redis
 REDIS_HOST=localhost
@@ -418,7 +421,7 @@ Kubernetes:
 Se precisar atualizar LLMs ou dependências:
 
 ```bash
-# 1. Atualizar Composer 2
+# 1. Atualizar Composer 2.5
 pip install google-cloud-aiplatform --upgrade
 
 # 2. Testar em staging

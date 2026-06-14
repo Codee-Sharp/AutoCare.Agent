@@ -12,7 +12,7 @@
         ┌────────────────────────────────────────┐
         │    CAMADA DE INTERAÇÃO (Agent Layer)   │
         │  ┌──────────────────────────────────┐  │
-        │  │  LLM (GPT-4 / Claude)            │  │
+        │  │  LLM (Google Composer 2.5)       │  │
         │  │  + System Prompt Dinâmico        │  │
         │  │  + Context Injection             │  │
         │  └──────────────────────────────────┘  │
@@ -303,7 +303,7 @@ PACIENTE: "Agendamento confirmado!"
     ┌────────▼────────┐      ┌───────────▼──────────┐
     │ BANCO PRINCIPAL │      │  SERVIÇOS EXTERNOS  │
     │ PostgreSQL      │      │                      │
-    │ ├─ Pacientes   │      │ ├─ OpenAI API        │
+    │ ├─ Pacientes   │      │ ├─ Composer 2.5 API  │
     │ ├─ Agendamentos│      │ ├─ Stripe            │
     │ ├─ Locks       │      │ ├─ MercadoPago       │
     │ ├─ Serviços    │      │ ├─ Twilio (SMS)      │

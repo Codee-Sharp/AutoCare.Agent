@@ -1,5 +1,11 @@
 ﻿# Tasks: FundaÃ§Ã£o do ServiÃ§o de Agente
 
+> **Nota de escopo (2026-06-14):** esta lista registra a implementação original.
+> A arquitetura foi simplificada posteriormente para um serviço stateless com
+> LangGraph enxuto, sem Redis ou clientes REST internos. Consulte o
+> [plano atualizado](./plan.md), o [README](../../README.md) e a suíte atual em
+> `tests/` como fontes de verdade.
+
 **Input**: Design documents from `specs/001-agent-service-foundation/`
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/,
@@ -47,7 +53,7 @@ test harness.
 - [x] T007 [P] Add settings validation and secret-redaction unit tests in `tests/unit/config/test_settings.py`
 - [x] T008 [P] Add domain contract validation and forbidden-field tests in `tests/unit/domain/test_models.py`
 - [x] T009 [P] Add sanitized structured logging tests in `tests/unit/observability/test_logging.py`
-- [x] T010 [P] Add fake and Composer LLM provider contract tests, including timeout and invalid content, in `tests/unit/llm/test_providers.py`
+- [x] T010 [P] Add Composer LLM provider contract tests and private test stubs, including timeout and invalid content
 - [x] T011 [P] Add session store contract tests for TTL, invalid context, and unavailable storage in `tests/unit/session/test_store.py`
 - [x] T012 [P] Add exposed API OpenAPI contract validation tests in `tests/contract/test_agent_api_contract.py`
 - [x] T013 [P] Add consumed internal tool OpenAPI contract validation tests in `tests/contract/test_internal_tools_contract.py`
@@ -59,7 +65,7 @@ test harness.
 - [x] T016 [P] Implement domain protocols for LLM, session storage, and query tools in `src/autocare_agent/domain/protocols.py`
 - [x] T017 [P] Implement safe domain error types and public error mapping in `src/autocare_agent/domain/errors.py`
 - [x] T018 [P] Implement allowlist-based JSON logging, session anonymization, and timing helpers in `src/autocare_agent/observability/logging.py`
-- [x] T019 Implement deterministic `FakeLLMProvider` and OpenAI-compatible `ComposerLLMProvider` in `src/autocare_agent/llm/providers.py`
+- [x] T019 Implement `ComposerLLMProvider` as the only runtime provider and keep deterministic stubs inside tests
 - [x] T020 Implement in-memory and Redis session stores with configurable TTL in `src/autocare_agent/session/store.py`
 - [x] T021 Implement FastAPI dependency wiring for settings, providers, stores, and shared HTTPX client in `src/autocare_agent/api/dependencies.py`
 - [x] T022 Implement bearer-token authentication and request ID propagation middleware in `src/autocare_agent/api/middleware.py`
@@ -75,7 +81,7 @@ doubles are ready.
 **Goal**: Process a normal administrative message with safe context continuity,
 intent classification, and a validated response.
 
-**Independent Test**: Send a normal message using `FakeLLMProvider` and verify a
+**Independent Test**: Send a normal message using a private test stub and verify a
 tracked response with intent and validated actions, without external network.
 
 ### Tests for User Story 1

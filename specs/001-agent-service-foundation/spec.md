@@ -4,11 +4,21 @@
 
 **Created**: 2026-06-13
 
-**Status**: Draft
+**Status**: Implemented with simplified scope
 
 **Input**: User description: "Entregar uma fundação executável, testável e extensível para um serviço conversacional seguro, integrado exclusivamente à aplicação interna, com contexto temporário, detecção de crise, handoff humano, ações estruturadas, observabilidade e falhas seguras."
 
 ## Clarifications
+
+### Session 2026-06-14
+
+- Q: A arquitetura pode ser simplificada considerando que o Agent fica atrás da
+  aplicação interna e responde apenas pelo processamento/orquestração da LLM?
+  → A: Sim. A implementação é stateless, usa um `Orchestrator` apoiado por um
+  LangGraph enxuto e remove Redis e clientes REST internos. A aplicação interna
+  envia contexto, mantém estado e executa ações. O
+  [plano atualizado](./plan.md) é a fonte de verdade técnica desta alteração de
+  escopo.
 
 ### Session 2026-06-13
 

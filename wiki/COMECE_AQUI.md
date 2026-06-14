@@ -117,7 +117,7 @@ Quero implementar o LLM e orquestração.
 
 **Checklist de Implementação**:
 ```
-☐ Integração com LLM (OpenAI/Claude)
+☐ Integração com Google Composer 2.5
 ☐ System Prompt dinâmico
 ☐ Context Injection
 ☐ Tool Calling

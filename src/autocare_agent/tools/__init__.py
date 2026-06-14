@@ -1,1 +1,0 @@
-"""Typed internal application tools."""

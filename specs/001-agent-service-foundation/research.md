@@ -24,15 +24,16 @@ por ampliar autoridade e exigir idempotência/conciliação dentro do agente.
 
 ## Provider LLM
 
-**Decision**: Definir `LLMProvider` no domínio, implementar Composer 2 via HTTP
-compatível com OpenAI e um fake determinístico.
+**Decision**: Definir `LLMProvider` no domínio e implementar somente Composer
+2.5 via HTTP. Testes usam stubs privados da suíte.
 
-**Rationale**: Evita dependência de SDK específico, facilita testes offline e
-isola detalhes de autenticação, timeout e parsing.
+**Rationale**: Evita dependência de SDK específico, mantém testes offline e
+isola detalhes de autenticação, timeout e parsing sem oferecer outro modelo em
+runtime.
 
 **Alternatives considered**: SDK de fornecedor no domínio foi rejeitado por
-acoplamento; fallback automático para outro provider foi adiado para não
-expandir risco comportamental nesta fundação.
+acoplamento; providers simulados ou fallback para outro modelo foram rejeitados
+para manter o Composer como único modelo suportado em runtime.
 
 ## Contexto temporário
 

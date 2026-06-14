@@ -8,15 +8,17 @@
 ## Configuração local
 
 ```powershell
-Copy-Item .env.example .env
-docker compose up --build
+.\start.cmd
 ```
 
-Para execução local sem chamadas LLM externas, configure:
+Na primeira execução, o comando cria `.env`. Preencha a credencial solicitada:
 
 ```env
-LLM_PROVIDER=fake
+COMPOSER_API_KEY=seu-segredo
 ```
+
+Depois execute `.\start.cmd` novamente. O script cria a `.venv`, instala
+dependências quando necessário, valida a configuração e inicia a API.
 
 ## Verificação
 
@@ -56,5 +58,5 @@ Invoke-RestMethod `
   -Body $body
 ```
 
-O ambiente de testes não deve exigir rede real. `FakeLLMProvider`, sessão em
-memória e mocks `respx` substituem as dependências externas.
+O ambiente de testes não exige rede real. Stubs privados da suíte e mocks
+`respx` substituem a chamada ao Composer sem oferecer outro provider em runtime.

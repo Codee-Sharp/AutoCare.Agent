@@ -1,46 +1,50 @@
 # Architecture Decisions
 
-## Agent Authority
+## Escopo e autoridade
 
-The Agent may query authoritative internal APIs, but it never executes
-confirmation or cancellation. Those operations are returned as validated
-proposals carrying `action_id` and `request_id`.
+O Agent é um serviço stateless de processamento e orquestração de LLM. A
+aplicação interna envia o contexto necessário em cada request e continua
+responsável por estado, regras de negócio, consultas autoritativas, pagamentos e
+execução de ações.
 
-The Agent reports a critical operation as successful only after a later request
-contains a correlated authoritative result with status `success` and a valid
-protocol.
+O Agent nunca acessa PostgreSQL ou APIs internas diretamente. Confirmação e
+cancelamento são apenas ações estruturadas propostas para validação e execução
+pela aplicação interna.
 
-## Safety Routing
+## KISS e SOLID
 
-Deterministic crisis detection runs before prompts, LLM calls, and tools.
-Unambiguous crisis signals immediately return configured emergency guidance and
-human escalation. Ambiguous risk stops administrative processing and asks one
-short confirmation question.
+- O `Orchestrator` compila e executa um LangGraph pequeno, com estado tipado,
+  nodes coesos e roteamento condicional explícito.
+- Os nodes permanecem juntos em `orchestrator.py` enquanto o fluxo for pequeno;
+  eles serão extraídos apenas quando novas features justificarem a separação.
+- `LLMProvider` mantém a inversão de dependência, mas o Composer é a única
+  implementação de produção. Testes usam stubs privados por injeção.
+- Contratos, segurança, ações e logs ficam em módulos pequenos e focados.
+- Redis e clientes REST foram removidos porque duplicavam responsabilidades da
+  aplicação interna.
 
-## Privacy
+## Segurança e privacidade
 
-Models reject unexpected context fields. Prompts use only an allowlisted,
-minimal context. Logs are built from an allowlist and never receive full
-messages, prompts, tokens, CPF, payment data, or clinical content.
+A detecção determinística de crise roda antes do prompt e da chamada LLM.
+Sinais inequívocos interrompem o fluxo e geram escalonamento humano; risco
+ambíguo interrompe o processamento administrativo e solicita confirmação.
 
-Redis stores only a short sanitized summary under a hashed session key with a
-configurable TTL. It is not a source of truth.
+Modelos rejeitam campos inesperados. Prompts usam contexto mínimo permitido.
+Logs são construídos por allowlist e nunca recebem mensagem completa, prompt,
+tokens, CPF, pagamento ou conteúdo clínico.
 
-## Transport, Secrets, and Audit
+## Falhas e observabilidade
 
-Production deployments must terminate TLS at the internal gateway and use TLS
-for Composer, internal APIs, and Redis. Credentials are supplied only through a
-managed secret store exposed as environment variables; `.env` is local-only.
+Falha, timeout ou resposta inválida do provider resultam em resposta segura e
+handoff humano. Eventos estruturados contêm apenas request ID, sessão
+anonimizada, etapa, intenção, duração, resultado externo e motivos codificados.
 
-Structured events containing request ID, anonymized session, node, intent,
-duration, external result, and coded handoff/crisis reason form the operational
-audit trail. Critical business-change auditing remains owned by the internal
-application.
+## Alternativas rejeitadas
 
-## Rejected Alternatives
-
-- Direct PostgreSQL access: violates ownership and privacy boundaries.
-- LLM-driven crisis handling only: unsafe during provider failure.
-- Agent-executed state changes: expands transactional and authorization risk.
-- Free-form tool payloads at domain boundaries: permits invented actions.
+- Redis no Agent: o estado já pertence à aplicação interna.
+- Um package e arquivo por node desde a fundação: aumenta a navegação antes de
+  existir complexidade que justifique essa fragmentação.
+- Clientes REST internos no Agent: criam uma segunda camada de orquestração.
+- Acesso direto ao PostgreSQL: viola propriedade e privacidade.
+- Segurança delegada apenas ao LLM: falha quando o provider está indisponível.
 
