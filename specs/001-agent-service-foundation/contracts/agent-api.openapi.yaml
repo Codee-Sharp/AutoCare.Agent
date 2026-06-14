@@ -140,7 +140,10 @@ components:
         mode:
           enum: [query, propose]
         parametros:
-          type: object
+          oneOf:
+            - $ref: "#/components/schemas/ConfirmActionParams"
+            - $ref: "#/components/schemas/CancelActionParams"
+            - $ref: "#/components/schemas/QueryActionParams"
         request_id:
           type: string
           format: uuid
@@ -172,3 +175,19 @@ components:
           type: string
         escalonamento_humano:
           const: true
+    ConfirmActionParams:
+      type: object
+      additionalProperties: false
+      required: [servico_id, slot_id]
+      properties:
+        servico_id: { type: string, format: uuid }
+        slot_id: { type: string, format: uuid }
+    CancelActionParams:
+      type: object
+      additionalProperties: false
+      required: [agendamento_id]
+      properties:
+        agendamento_id: { type: string, format: uuid }
+    QueryActionParams:
+      type: object
+      additionalProperties: false

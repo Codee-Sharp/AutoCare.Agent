@@ -1,4 +1,4 @@
-# Tasks: Fundação do Serviço de Agente
+﻿# Tasks: FundaÃ§Ã£o do ServiÃ§o de Agente
 
 **Input**: Design documents from `specs/001-agent-service-foundation/`
 
@@ -24,12 +24,12 @@ implemented and verified independently after the shared foundation.
 **Purpose**: Initialize the Python service, tooling, packaging, and local
 runtime structure.
 
-- [ ] T001 Create package and test directory structure with `__init__.py` files under `src/autocare_agent/`, `tests/unit/`, `tests/integration/`, and `tests/contract/`
-- [ ] T002 Configure Python 3.12 dependencies, pytest, pytest-asyncio, Ruff, and mypy in `pyproject.toml`
-- [ ] T003 [P] Add secret-free environment variable template in `.env.example`
-- [ ] T004 [P] Add application container build in `Dockerfile`
-- [ ] T005 [P] Add application and Redis local services in `docker-compose.yml`
-- [ ] T006 [P] Add test fixtures and network-blocking defaults in `tests/conftest.py`
+- [x] T001 Create package and test directory structure with `__init__.py` files under `src/autocare_agent/`, `tests/unit/`, `tests/integration/`, and `tests/contract/`
+- [x] T002 Configure Python 3.12 dependencies, pytest, pytest-asyncio, Ruff, and mypy in `pyproject.toml`
+- [x] T003 [P] Add secret-free environment variable template in `.env.example`
+- [x] T004 [P] Add application container build in `Dockerfile`
+- [x] T005 [P] Add application and Redis local services in `docker-compose.yml`
+- [x] T006 [P] Add test fixtures and network-blocking defaults in `tests/conftest.py`
 
 **Checkpoint**: The repository has an installable project skeleton and isolated
 test harness.
@@ -44,33 +44,33 @@ test harness.
 
 ### Foundational Tests
 
-- [ ] T007 [P] Add settings validation and secret-redaction unit tests in `tests/unit/config/test_settings.py`
-- [ ] T008 [P] Add domain contract validation and forbidden-field tests in `tests/unit/domain/test_models.py`
-- [ ] T009 [P] Add sanitized structured logging tests in `tests/unit/observability/test_logging.py`
-- [ ] T010 [P] Add fake and Composer LLM provider contract tests, including timeout and invalid content, in `tests/unit/llm/test_providers.py`
-- [ ] T011 [P] Add session store contract tests for TTL, invalid context, and unavailable storage in `tests/unit/session/test_store.py`
-- [ ] T012 [P] Add exposed API OpenAPI contract validation tests in `tests/contract/test_agent_api_contract.py`
-- [ ] T013 [P] Add consumed internal tool OpenAPI contract validation tests in `tests/contract/test_internal_tools_contract.py`
+- [x] T007 [P] Add settings validation and secret-redaction unit tests in `tests/unit/config/test_settings.py`
+- [x] T008 [P] Add domain contract validation and forbidden-field tests in `tests/unit/domain/test_models.py`
+- [x] T009 [P] Add sanitized structured logging tests in `tests/unit/observability/test_logging.py`
+- [x] T010 [P] Add fake and Composer LLM provider contract tests, including timeout and invalid content, in `tests/unit/llm/test_providers.py`
+- [x] T011 [P] Add session store contract tests for TTL, invalid context, and unavailable storage in `tests/unit/session/test_store.py`
+- [x] T012 [P] Add exposed API OpenAPI contract validation tests in `tests/contract/test_agent_api_contract.py`
+- [x] T013 [P] Add consumed internal tool OpenAPI contract validation tests in `tests/contract/test_internal_tools_contract.py`
 
 ### Foundational Implementation
 
-- [ ] T014 Implement environment settings and provider selection in `src/autocare_agent/config/settings.py`
-- [ ] T015 [P] Implement strict request, response, action, crisis, handoff, and tool-result models in `src/autocare_agent/domain/models.py`
-- [ ] T016 [P] Implement domain protocols for LLM, session storage, and query tools in `src/autocare_agent/domain/protocols.py`
-- [ ] T017 [P] Implement safe domain error types and public error mapping in `src/autocare_agent/domain/errors.py`
-- [ ] T018 [P] Implement allowlist-based JSON logging, session anonymization, and timing helpers in `src/autocare_agent/observability/logging.py`
-- [ ] T019 Implement deterministic `FakeLLMProvider` and OpenAI-compatible `ComposerLLMProvider` in `src/autocare_agent/llm/providers.py`
-- [ ] T020 Implement in-memory and Redis session stores with configurable TTL in `src/autocare_agent/session/store.py`
-- [ ] T021 Implement FastAPI dependency wiring for settings, providers, stores, and shared HTTPX client in `src/autocare_agent/api/dependencies.py`
-- [ ] T022 Implement bearer-token authentication and request ID propagation middleware in `src/autocare_agent/api/middleware.py`
-- [ ] T023 Create FastAPI application factory and router registration in `src/autocare_agent/api/app.py`
+- [x] T014 Implement environment settings and provider selection in `src/autocare_agent/config/settings.py`
+- [x] T015 [P] Implement strict request, response, action, crisis, handoff, and tool-result models in `src/autocare_agent/domain/models.py`
+- [x] T016 [P] Implement domain protocols for LLM, session storage, and query tools in `src/autocare_agent/domain/protocols.py`
+- [x] T017 [P] Implement safe domain error types and public error mapping in `src/autocare_agent/domain/errors.py`
+- [x] T018 [P] Implement allowlist-based JSON logging, session anonymization, and timing helpers in `src/autocare_agent/observability/logging.py`
+- [x] T019 Implement deterministic `FakeLLMProvider` and OpenAI-compatible `ComposerLLMProvider` in `src/autocare_agent/llm/providers.py`
+- [x] T020 Implement in-memory and Redis session stores with configurable TTL in `src/autocare_agent/session/store.py`
+- [x] T021 Implement FastAPI dependency wiring for settings, providers, stores, and shared HTTPX client in `src/autocare_agent/api/dependencies.py`
+- [x] T022 Implement bearer-token authentication and request ID propagation middleware in `src/autocare_agent/api/middleware.py`
+- [x] T023 Create FastAPI application factory and router registration in `src/autocare_agent/api/app.py`
 
 **Checkpoint**: Shared contracts, privacy controls, dependencies, and test
 doubles are ready.
 
 ---
 
-## Phase 3: User Story 1 - Conversa segura e útil (Priority: P1) MVP
+## Phase 3: User Story 1 - Conversa segura e Ãºtil (Priority: P1) MVP
 
 **Goal**: Process a normal administrative message with safe context continuity,
 intent classification, and a validated response.
@@ -80,27 +80,27 @@ tracked response with intent and validated actions, without external network.
 
 ### Tests for User Story 1
 
-- [ ] T024 [P] [US1] Add request and response endpoint tests for normal messages and validation failures in `tests/integration/test_agent_process.py`
-- [ ] T025 [P] [US1] Add graph tests for node order, session continuity, LLM timeout, and invalid LLM response in `tests/unit/graph/test_normal_flow.py`
-- [ ] T026 [P] [US1] Add prompt minimization and forbidden-data exclusion tests in `tests/unit/llm/test_prompt_builder.py`
+- [x] T024 [P] [US1] Add request and response endpoint tests for normal messages and validation failures in `tests/integration/test_agent_process.py`
+- [x] T025 [P] [US1] Add graph tests for node order, session continuity, LLM timeout, and invalid LLM response in `tests/unit/graph/test_normal_flow.py`
+- [x] T026 [P] [US1] Add prompt minimization and forbidden-data exclusion tests in `tests/unit/llm/test_prompt_builder.py`
 
 ### Implementation for User Story 1
 
-- [ ] T027 [P] [US1] Implement input validation and sanitization node in `src/autocare_agent/graph/nodes/input_validation.py`
-- [ ] T028 [P] [US1] Implement temporary session load and save nodes in `src/autocare_agent/graph/nodes/session_context.py`
-- [ ] T029 [P] [US1] Implement minimal safe prompt builder in `src/autocare_agent/llm/prompt_builder.py`
-- [ ] T030 [P] [US1] Implement intent classification node and known intent taxonomy in `src/autocare_agent/graph/nodes/intent.py`
-- [ ] T031 [P] [US1] Implement LLM conversation and safe-failure node in `src/autocare_agent/graph/nodes/conversation.py`
-- [ ] T032 [US1] Implement typed LangGraph state and normal-flow graph assembly in `src/autocare_agent/graph/workflow.py`
-- [ ] T033 [US1] Implement final response construction node in `src/autocare_agent/graph/nodes/response.py`
-- [ ] T034 [US1] Implement `POST /agent/process` using the compiled graph in `src/autocare_agent/api/routes/agent.py`
+- [x] T027 [P] [US1] Implement input validation and sanitization node in `src/autocare_agent/graph/nodes/input_validation.py`
+- [x] T028 [P] [US1] Implement temporary session load and save nodes in `src/autocare_agent/graph/nodes/session_context.py`
+- [x] T029 [P] [US1] Implement minimal safe prompt builder in `src/autocare_agent/llm/prompt_builder.py`
+- [x] T030 [P] [US1] Implement intent classification node and known intent taxonomy in `src/autocare_agent/graph/nodes/intent.py`
+- [x] T031 [P] [US1] Implement LLM conversation and safe-failure node in `src/autocare_agent/graph/nodes/conversation.py`
+- [x] T032 [US1] Implement typed LangGraph state and normal-flow graph assembly in `src/autocare_agent/graph/workflow.py`
+- [x] T033 [US1] Implement final response construction node in `src/autocare_agent/graph/nodes/response.py`
+- [x] T034 [US1] Implement `POST /agent/process` using the compiled graph in `src/autocare_agent/api/routes/agent.py`
 
 **Checkpoint**: A normal conversation is independently functional and testable
 with no real network.
 
 ---
 
-## Phase 4: User Story 2 - Interrupção por crise (Priority: P1)
+## Phase 4: User Story 2 - InterrupÃ§Ã£o por crise (Priority: P1)
 
 **Goal**: Detect crisis signals before normal processing, interrupt the graph,
 and return a structured alert with human escalation.
@@ -110,23 +110,23 @@ normal flow are not called and a sanitized crisis alert is returned.
 
 ### Tests for User Story 2
 
-- [ ] T035 [P] [US2] Add deterministic crisis detector tests including ambiguous and non-crisis messages in `tests/unit/safety/test_crisis_detector.py`
-- [ ] T036 [P] [US2] Add crisis short-circuit integration tests proving no LLM or tool calls occur in `tests/integration/test_crisis_flow.py`
-- [ ] T037 [P] [US2] Add crisis payload privacy and contract tests in `tests/contract/test_crisis_contract.py`
+- [x] T035 [P] [US2] Add deterministic crisis detector tests including ambiguous and non-crisis messages in `tests/unit/safety/test_crisis_detector.py`
+- [x] T036 [P] [US2] Add crisis short-circuit integration tests proving no LLM or tool calls occur in `tests/integration/test_crisis_flow.py`
+- [x] T037 [P] [US2] Add crisis payload privacy and contract tests in `tests/contract/test_crisis_contract.py`
 
 ### Implementation for User Story 2
 
-- [ ] T038 [P] [US2] Implement deterministic crisis categories and detector in `src/autocare_agent/safety/crisis.py`
-- [ ] T039 [P] [US2] Implement configured non-diagnostic emergency guidance builder in `src/autocare_agent/safety/guidance.py`
-- [ ] T040 [US2] Implement crisis detection and alert nodes in `src/autocare_agent/graph/nodes/crisis.py`
-- [ ] T041 [US2] Add immediate crisis routing before prompt and LLM nodes in `src/autocare_agent/graph/workflow.py`
+- [x] T038 [P] [US2] Implement deterministic crisis categories and detector in `src/autocare_agent/safety/crisis.py`
+- [x] T039 [P] [US2] Implement configured non-diagnostic emergency guidance builder in `src/autocare_agent/safety/guidance.py`
+- [x] T040 [US2] Implement crisis detection and alert nodes in `src/autocare_agent/graph/nodes/crisis.py`
+- [x] T041 [US2] Add immediate crisis routing before prompt and LLM nodes in `src/autocare_agent/graph/workflow.py`
 
 **Checkpoint**: Crisis processing is independently verifiable and always takes
 priority over normal conversation.
 
 ---
 
-## Phase 5: User Story 3 - Solicitação de atendimento humano (Priority: P2)
+## Phase 5: User Story 3 - SolicitaÃ§Ã£o de atendimento humano (Priority: P2)
 
 **Goal**: Produce a minimal, sanitized handoff dossier for explicit requests or
 unsafe failure conditions.
@@ -136,23 +136,23 @@ dependency failure; verify both return a sanitized structured handoff.
 
 ### Tests for User Story 3
 
-- [ ] T042 [P] [US3] Add explicit human-request detection tests in `tests/unit/safety/test_handoff.py`
-- [ ] T043 [P] [US3] Add handoff dossier minimization and forbidden-data tests in `tests/unit/safety/test_handoff_dossier.py`
-- [ ] T044 [P] [US3] Add explicit-request and unsafe-failure handoff integration tests in `tests/integration/test_handoff_flow.py`
+- [x] T042 [P] [US3] Add explicit human-request detection tests in `tests/unit/safety/test_handoff.py`
+- [x] T043 [P] [US3] Add handoff dossier minimization and forbidden-data tests in `tests/unit/safety/test_handoff_dossier.py`
+- [x] T044 [P] [US3] Add explicit-request and unsafe-failure handoff integration tests in `tests/integration/test_handoff_flow.py`
 
 ### Implementation for User Story 3
 
-- [ ] T045 [P] [US3] Implement explicit human-request detector and handoff reason taxonomy in `src/autocare_agent/safety/handoff.py`
-- [ ] T046 [P] [US3] Implement sanitized handoff dossier builder in `src/autocare_agent/safety/dossier.py`
-- [ ] T047 [US3] Implement handoff graph node and route explicit requests and unsafe failures in `src/autocare_agent/graph/nodes/handoff.py`
-- [ ] T048 [US3] Integrate handoff results into final responses in `src/autocare_agent/graph/nodes/response.py`
+- [x] T045 [P] [US3] Implement explicit human-request detector and handoff reason taxonomy in `src/autocare_agent/safety/handoff.py`
+- [x] T046 [P] [US3] Implement sanitized handoff dossier builder in `src/autocare_agent/safety/dossier.py`
+- [x] T047 [US3] Implement handoff graph node and route explicit requests and unsafe failures in `src/autocare_agent/graph/nodes/handoff.py`
+- [x] T048 [US3] Integrate handoff results into final responses in `src/autocare_agent/graph/nodes/response.py`
 
 **Checkpoint**: Handoff behavior works independently for patient requests and
 safe degradation.
 
 ---
 
-## Phase 6: User Story 4 - Execução por aplicação interna (Priority: P2)
+## Phase 6: User Story 4 - ExecuÃ§Ã£o por aplicaÃ§Ã£o interna (Priority: P2)
 
 **Goal**: Query authoritative internal APIs through typed clients while
 returning state-changing operations only as validated proposals.
@@ -163,27 +163,27 @@ agent.
 
 ### Tests for User Story 4
 
-- [ ] T049 [P] [US4] Add REST query client success, timeout, unavailable, invalid response, and request ID propagation tests with respx in `tests/unit/tools/test_clients.py`
-- [ ] T050 [P] [US4] Add structured action validation tests including invented and malformed critical actions in `tests/unit/tools/test_action_validator.py`
-- [ ] T051 [P] [US4] Add integration tests proving confirm and cancel are proposals and never outbound calls in `tests/integration/test_action_authority.py`
-- [ ] T052 [P] [US4] Add authoritative result and protocol response contract tests in `tests/contract/test_authoritative_result_contract.py`
+- [x] T049 [P] [US4] Add REST query client success, timeout, unavailable, invalid response, and request ID propagation tests with respx in `tests/unit/tools/test_clients.py`
+- [x] T050 [P] [US4] Add structured action validation tests including invented and malformed critical actions in `tests/unit/tools/test_action_validator.py`
+- [x] T051 [P] [US4] Add integration tests proving confirm and cancel are proposals and never outbound calls in `tests/integration/test_action_authority.py`
+- [x] T052 [P] [US4] Add authoritative result and protocol response contract tests in `tests/contract/test_authoritative_result_contract.py`
 
 ### Implementation for User Story 4
 
-- [ ] T053 [P] [US4] Implement typed request and response contracts for all six tools in `src/autocare_agent/tools/contracts.py`
-- [ ] T054 [P] [US4] Implement shared HTTPX REST query client with timeout, validation, and correlation propagation in `src/autocare_agent/tools/client.py`
-- [ ] T055 [US4] Implement read-only clients for availability, service, discount, and appointment listing in `src/autocare_agent/tools/queries.py`
-- [ ] T056 [P] [US4] Implement critical action proposal factories for confirmation and cancellation in `src/autocare_agent/tools/proposals.py`
-- [ ] T057 [US4] Implement action allowlist, parameter validation, mode enforcement, and invented-action blocking in `src/autocare_agent/tools/validator.py`
-- [ ] T058 [US4] Implement action validation and authoritative query graph node in `src/autocare_agent/graph/nodes/actions.py`
-- [ ] T059 [US4] Integrate query results and proposed actions into normal graph routing in `src/autocare_agent/graph/workflow.py`
+- [x] T053 [P] [US4] Implement typed request and response contracts for all six tools in `src/autocare_agent/tools/contracts.py`
+- [x] T054 [P] [US4] Implement shared HTTPX REST query client with timeout, validation, and correlation propagation in `src/autocare_agent/tools/client.py`
+- [x] T055 [US4] Implement read-only clients for availability, service, discount, and appointment listing in `src/autocare_agent/tools/queries.py`
+- [x] T056 [P] [US4] Implement critical action proposal factories for confirmation and cancellation in `src/autocare_agent/tools/proposals.py`
+- [x] T057 [US4] Implement action allowlist, parameter validation, mode enforcement, and invented-action blocking in `src/autocare_agent/tools/validator.py`
+- [x] T058 [US4] Implement action validation and authoritative query graph node in `src/autocare_agent/graph/nodes/actions.py`
+- [x] T059 [US4] Integrate query results and proposed actions into normal graph routing in `src/autocare_agent/graph/workflow.py`
 
 **Checkpoint**: The internal application remains the sole authority and executor
 for critical actions.
 
 ---
 
-## Phase 7: User Story 5 - Operação observável e verificável (Priority: P3)
+## Phase 7: User Story 5 - OperaÃ§Ã£o observÃ¡vel e verificÃ¡vel (Priority: P3)
 
 **Goal**: Expose accurate health checks and trace every flow using sanitized
 structured logs.
@@ -194,15 +194,15 @@ fields and absence of sensitive data.
 
 ### Tests for User Story 5
 
-- [ ] T060 [P] [US5] Add liveness and readiness endpoint tests with healthy and unavailable Redis in `tests/integration/test_health.py`
-- [ ] T061 [P] [US5] Add end-to-end structured logging tests for normal, crisis, handoff, and external failure flows in `tests/integration/test_observability.py`
-- [ ] T062 [P] [US5] Add operation duration and external-result logging unit tests in `tests/unit/observability/test_timing.py`
+- [x] T060 [P] [US5] Add liveness and readiness endpoint tests with healthy and unavailable Redis in `tests/integration/test_health.py`
+- [x] T061 [P] [US5] Add end-to-end structured logging tests for normal, crisis, handoff, and external failure flows in `tests/integration/test_observability.py`
+- [x] T062 [P] [US5] Add operation duration and external-result logging unit tests in `tests/unit/observability/test_timing.py`
 
 ### Implementation for User Story 5
 
-- [ ] T063 [P] [US5] Implement liveness and Redis-backed readiness routes in `src/autocare_agent/api/routes/health.py`
-- [ ] T064 [P] [US5] Implement node timing and external-call result instrumentation in `src/autocare_agent/observability/instrumentation.py`
-- [ ] T065 [US5] Integrate sanitized node, intent, duration, external result, crisis, and handoff logs across `src/autocare_agent/graph/workflow.py`
+- [x] T063 [P] [US5] Implement liveness and Redis-backed readiness routes in `src/autocare_agent/api/routes/health.py`
+- [x] T064 [P] [US5] Implement node timing and external-call result instrumentation in `src/autocare_agent/observability/instrumentation.py`
+- [x] T065 [US5] Integrate sanitized node, intent, duration, external result, crisis, and handoff logs across `src/autocare_agent/graph/workflow.py`
 
 **Checkpoint**: Operators can verify readiness and diagnose flows without
 exposing sensitive content.
@@ -214,15 +214,15 @@ exposing sensitive content.
 **Purpose**: Complete packaging, documentation, regression verification, and
 quality gates across all stories.
 
-- [ ] T066 [P] Document architecture, safety boundaries, environment variables, commands, and request example in `README.md`
-- [ ] T067 [P] Document architectural decisions and rejected alternatives in `docs/architecture-decisions.md`
-- [ ] T068 [P] Add full offline regression tests for duplicate requests and concurrent same-session requests in `tests/integration/test_resilience.py`
-- [ ] T069 [P] Add performance acceptance tests for process and health latency targets in `tests/integration/test_performance.py`
+- [x] T066 [P] Document architecture, safety boundaries, environment variables, commands, and request example in `README.md`
+- [x] T067 [P] Document architectural decisions and rejected alternatives in `docs/architecture-decisions.md`
+- [x] T068 [P] Add full offline regression tests for duplicate requests and concurrent same-session requests in `tests/integration/test_resilience.py`
+- [x] T069 [P] Add performance acceptance tests for process and health latency targets in `tests/integration/test_performance.py`
 - [ ] T070 Validate Docker Compose startup and every command from `specs/001-agent-service-foundation/quickstart.md`
-- [ ] T071 Run and fix Ruff checks and formatting across `src/` and `tests/`
-- [ ] T072 Run and fix mypy checks across `src/`
-- [ ] T073 Run and fix the full pytest suite and confirm no test uses real network access in `tests/`
-- [ ] T074 Review all source and tests for direct database access, sensitive-data exposure, invented authoritative facts, and unsafe failure behavior in `src/` and `tests/`
+- [x] T071 Run and fix Ruff checks and formatting across `src/` and `tests/`
+- [x] T072 Run and fix mypy checks across `src/`
+- [x] T073 Run and fix the full pytest suite and confirm no test uses real network access in `tests/`
+- [x] T074 Review all source and tests for direct database access, sensitive-data exposure, invented authoritative facts, and unsafe failure behavior in `src/` and `tests/`
 
 ---
 
@@ -245,10 +245,10 @@ quality gates across all stories.
 
 ```text
 Setup -> Foundational -> US1
-                    ├-> US2
-                    ├-> US3 -> integrate with US1 response
-                    ├-> US4 -> integrate with US1 workflow
-                    └-> US5 -> observe completed flows
+                    â”œ-> US2
+                    â”œ-> US3 -> integrate with US1 response
+                    â”œ-> US4 -> integrate with US1 workflow
+                    â””-> US5 -> observe completed flows
 ```
 
 ### Within Each User Story
