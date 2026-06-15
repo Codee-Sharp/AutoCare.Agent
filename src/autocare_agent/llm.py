@@ -16,13 +16,31 @@ Return only a JSON object matching the requested contract."""
 class LLMError(Exception):
     """Base error for controlled provider failures."""
 
+    code = "llm_failure"
+
 
 class DependencyUnavailable(LLMError):
     """The provider could not be reached or timed out."""
 
+    code = "composer_unavailable"
+
+
+class ComposerAuthenticationFailed(LLMError):
+    """The Composer API rejected the configured credential."""
+
+    code = "composer_authentication_failed"
+
+
+class ComposerRequestRejected(LLMError):
+    """The Composer API rejected a valid authenticated request."""
+
+    code = "composer_request_rejected"
+
 
 class InvalidDependencyResponse(LLMError):
     """The provider returned content outside the expected contract."""
+
+    code = "composer_invalid_response"
 
 
 class LLMProvider(Protocol):
@@ -63,8 +81,16 @@ class ComposerLLMProvider:
                 timeout=self.timeout,
             )
             response.raise_for_status()
-        except httpx.HTTPError as exc:
-            raise DependencyUnavailable("llm_unavailable") from exc
+        except httpx.TimeoutException as exc:
+            raise DependencyUnavailable("composer_timeout") from exc
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in {401, 403}:
+                raise ComposerAuthenticationFailed("composer_authentication_failed") from exc
+            if 400 <= exc.response.status_code < 500:
+                raise ComposerRequestRejected("composer_request_rejected") from exc
+            raise DependencyUnavailable("composer_unavailable") from exc
+        except httpx.RequestError as exc:
+            raise DependencyUnavailable("composer_unavailable") from exc
 
         try:
             raw = response.json()["choices"][0]["message"]["content"]

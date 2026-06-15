@@ -2,6 +2,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from autocare_agent.llm import ComposerAuthenticationFailed
 from autocare_agent.orchestrator import Orchestrator
 from autocare_agent.schemas import ActionType, Intent, LLMResult, ProcessRequest, ProposedAction
 
@@ -91,6 +92,16 @@ async def test_llm_failure_returns_safe_handoff() -> None:
     assert response.sucesso is False
     assert response.dossie_handoff is not None
     assert response.dossie_handoff.motivo == "falha_segura"
+
+
+@pytest.mark.asyncio
+async def test_controlled_llm_failure_is_logged_with_specific_code(caplog) -> None:
+    provider = StubProvider(error=ComposerAuthenticationFailed("composer_authentication_failed"))
+
+    with caplog.at_level("INFO"):
+        await Orchestrator(provider, "emergency").process(request("Olá"), uuid4())
+
+    assert "composer_authentication_failed" in caplog.messages[-1]
 
 
 @pytest.mark.asyncio

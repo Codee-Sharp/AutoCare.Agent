@@ -69,6 +69,9 @@ def test_health_checks_and_swagger_are_public(client) -> None:
     }
     assert openapi["paths"]["/agent/process"]["post"]["security"] == [{"BearerAuth": []}]
     assert "security" not in openapi["paths"]["/health/live"]["get"]
+    examples = openapi["paths"]["/agent/process"]["post"]["requestBody"]["content"]["application/json"]["examples"]
+    assert "resultado_autoritativo" not in examples["conversa_normal"]["value"]["contexto"]
+    assert examples["resultado_autoritativo"]["value"]["contexto"]["resultado_autoritativo"]["status"] == "success"
 
 
 def test_swagger_persists_authorization_during_browser_session(client) -> None:

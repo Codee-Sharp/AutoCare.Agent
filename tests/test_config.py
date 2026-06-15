@@ -23,6 +23,11 @@ def test_composer_requires_api_key_and_https() -> None:
         Settings(composer_api_key="key", composer_base_url="http://composer.test")
 
 
+def test_cursor_cloud_agents_api_is_rejected_as_chat_endpoint() -> None:
+    with pytest.raises(ValidationError, match="Cursor Cloud Agents API"):
+        Settings(composer_api_key="key", composer_base_url="https://api.cursor.com/v1/agents")
+
+
 def test_runtime_uses_only_composer_provider() -> None:
     assert isinstance(get_orchestrator().provider, ComposerLLMProvider)
     assert get_orchestrator().provider.model == "composer-2.5"

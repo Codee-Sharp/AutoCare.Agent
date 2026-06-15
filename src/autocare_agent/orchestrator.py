@@ -7,7 +7,7 @@ from uuid import UUID
 from langgraph.graph import END, START, StateGraph
 
 from autocare_agent.actions import validate_actions
-from autocare_agent.llm import LLMProvider, build_system_prompt
+from autocare_agent.llm import LLMError, LLMProvider, build_system_prompt
 from autocare_agent.logging import anonymize_session, log_event
 from autocare_agent.safety import (
     build_dossier,
@@ -186,7 +186,15 @@ class Orchestrator:
             if handoff:
                 update["handoff"] = handoff
             return update
-        except Exception:
+        except LLMError as exc:
+            logger.error(f"LLMError during conversation: {exc}")
+            return {
+                "handoff": build_dossier("falha_segura", intent),
+                "response_text": "Não consigo concluir com segurança agora. Vou solicitar atendimento humano.",
+                "external_result": exc.code,
+            }
+        except Exception as exc:
+            logger.error(f"Unexpected error during conversation: {exc}")
             return {
                 "handoff": build_dossier("falha_segura", intent),
                 "response_text": "Não consigo concluir com segurança agora. Vou solicitar atendimento humano.",

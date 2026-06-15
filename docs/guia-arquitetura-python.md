@@ -328,24 +328,21 @@ Coloque breakpoints nesta ordem:
 6. `llm.py`, em `generate`;
 7. `actions.py`, em `validate_actions`.
 
-Configuração sugerida para `.vscode/launch.json`:
+O repositório já possui `.vscode/launch.json`. Abra **Run and Debug** com
+`Ctrl+Shift+D`, selecione **API: AutoCare Agent** e pressione `F5`.
 
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "AutoCare Agent API",
-      "type": "debugpy",
-      "request": "launch",
-      "module": "uvicorn",
-      "args": ["autocare_agent.app:app", "--reload", "--port", "8000"],
-      "envFile": "${workspaceFolder}/.env",
-      "justMyCode": true
-    }
-  ]
-}
-```
+Para acompanhar uma requisição:
+
+1. coloque os breakpoints sugeridos acima;
+2. inicie **API: AutoCare Agent**;
+3. abra `http://localhost:8000/docs`;
+4. autorize com `APP_AUTH_TOKEN`;
+5. execute `POST /agent/process`;
+6. use `F10` para avançar e `F11` para entrar nas funções.
+
+Também estão disponíveis **Testes: arquivo atual** e **Testes: todos**. A
+configuração da API não usa `--reload`, pois o reload cria subprocessos e pode
+fazer breakpoints parecerem inconsistentes.
 
 ## 10. Alterações comuns
 

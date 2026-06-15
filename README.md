@@ -196,10 +196,17 @@ Para testar `/agent/process` pelo Swagger:
 1. abra `http://localhost:8000/docs`;
 2. clique em **Authorize**;
 3. informe somente o valor de `APP_AUTH_TOKEN`, sem escrever `Bearer`;
-4. clique em **Authorize** novamente e execute o endpoint.
+4. clique em **Authorize** novamente;
+5. abra `POST /agent/process`, clique em **Try it out** e selecione o exemplo
+   **Conversa normal - chama o Composer**;
+6. execute o endpoint.
 
 O Swagger adiciona automaticamente `Authorization: Bearer <token>` e preserva
 o token durante a sessão do navegador.
+
+O exemplo **Confirmação autoritativa - não chama o Composer** representa uma
+operação que já foi executada pela aplicação interna. Ele encerra o fluxo antes
+da LLM.
 
 ## Exemplo de request
 
@@ -246,6 +253,12 @@ O host `cursor-api.standardagents.ai` não deve ser usado como base: ele
 redireciona para outro domínio e o HTTPX remove corretamente o header de
 autorização durante redirects entre hosts.
 
+Também não use `https://api.cursor.com/v1/agents`. Essa é a API de Cloud Agents
+do Cursor, voltada à execução de agentes de programação, e não implementa o
+contrato OpenAI-compatible `/chat/completions` esperado pelo
+`ComposerLLMProvider`. Quando ela é configurada, o código tentaria chamar
+`https://api.cursor.com/v1/agents/chat/completions` e receberia `404 Not Found`.
+
 Em teste realizado com `composer-2.5`, o endpoint confirmou que o modelo está
 disponível, mas a execução de chat retornou que Cloud Agent exige uma conta Pro.
 Nesse cenário, o Agent retorna `falha_segura` e solicita handoff humano.
@@ -272,24 +285,29 @@ Extensões recomendadas:
 - Docker, da Microsoft;
 - REST Client, opcional para testar endpoints.
 
-Selecione o interpretador em `.venv` e use esta configuração de debug:
+O repositório já contém configurações de debug em `.vscode/`.
 
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "AutoCare Agent API",
-      "type": "debugpy",
-      "request": "launch",
-      "module": "uvicorn",
-      "args": ["autocare_agent.app:app", "--reload", "--port", "8000"],
-      "envFile": "${workspaceFolder}/.env",
-      "justMyCode": true
-    }
-  ]
-}
-```
+Para depurar a API:
+
+1. abra **Run and Debug** com `Ctrl+Shift+D`;
+2. selecione **API: AutoCare Agent**;
+3. coloque um breakpoint clicando à esquerda do número da linha;
+4. pressione `F5`;
+5. envie um request pelo Swagger em `http://localhost:8000/docs`.
+
+Atalhos úteis:
+
+- `F5`: continuar até o próximo breakpoint;
+- `F10`: executar a próxima linha sem entrar em funções;
+- `F11`: entrar na função chamada;
+- `Shift+F11`: sair da função atual;
+- `Shift+F5`: encerrar o debug.
+
+Para depurar testes, abra o arquivo desejado e selecione **Testes: arquivo
+atual**, ou use **Testes: todos**.
+
+Durante o debug, não usamos `--reload`, pois o reload cria outro processo e pode
+impedir que alguns breakpoints sejam atingidos.
 
 ## Problemas comuns
 
@@ -301,6 +319,13 @@ Selecione o interpretador em `.venv` e use esta configuração de debug:
 - Porta 8000 ocupada: encerre o processo existente ou use outra porta.
 - Composer indisponível: o Agent retorna `falha_segura`; não existe fallback
   para outro modelo.
+- Composer retorna `401 Unauthorized`: encerre a API com `Ctrl+C` e execute
+  `.\start.cmd` novamente. O processo precisa ser reiniciado após mudanças no
+  `.env`. Se persistir, gere uma nova API key.
+- Composer retorna `404 Not Found` em
+  `https://api.cursor.com/v1/agents/chat/completions`: restaure
+  `COMPOSER_BASE_URL=https://api-for-cursor.standardagents.ai/opencode/v1`.
+  A API de Cloud Agents do Cursor não é um endpoint de chat compatível.
 - Composer retorna `Cloud Agent is not available for free users`: a API key e o
   modelo foram reconhecidos, mas a conta precisa de plano Pro.
 - Import não encontrado: ative `.venv` e execute `python -m pip install -e

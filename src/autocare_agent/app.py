@@ -1,10 +1,11 @@
 import logging
 import secrets
 from functools import lru_cache
+from typing import Annotated
 from uuid import UUID, uuid4
 
 import httpx
-from fastapi import Depends, FastAPI, Request, Response, Security
+from fastapi import Body, Depends, FastAPI, Request, Response, Security
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -20,6 +21,43 @@ bearer_auth = HTTPBearer(
     scheme_name="BearerAuth",
     description="Informe somente o token configurado em APP_AUTH_TOKEN. O Swagger adicionará o prefixo Bearer.",
 )
+
+PROCESS_EXAMPLES = {
+    "conversa_normal": {
+        "summary": "Conversa normal - chama o Composer",
+        "description": "Use este exemplo para testar o fluxo normal que chega ao Composer 2.5.",
+        "value": {
+            "contract_version": "1.0",
+            "paciente_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "sessao_id": "8c02ef48-822d-4fc3-bc33-34657c929fc7",
+            "mensagem": "Olá, gostaria de conhecer os horários disponíveis.",
+            "contexto": {
+                "nome_preferido": "Maria",
+                "locale": "pt-BR",
+                "timezone": "America/Sao_Paulo",
+                "resumo_sessao": "Paciente busca informações administrativas.",
+            },
+        },
+    },
+    "resultado_autoritativo": {
+        "summary": "Confirmação autoritativa - não chama o Composer",
+        "description": "Use somente quando a aplicação interna já executou e confirmou uma operação.",
+        "value": {
+            "contract_version": "1.0",
+            "paciente_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "sessao_id": "8c02ef48-822d-4fc3-bc33-34657c929fc7",
+            "mensagem": "A operação foi concluída?",
+            "contexto": {
+                "locale": "pt-BR",
+                "resultado_autoritativo": {
+                    "action_id": "c25185be-654c-4d45-8292-054250a7722f",
+                    "status": "success",
+                    "protocolo": "AG-123",
+                },
+            },
+        },
+    },
+}
 
 
 class SecurityMiddleware(BaseHTTPMiddleware):
@@ -72,7 +110,7 @@ def create_app() -> FastAPI:
     @app.post("/agent/process", response_model=ProcessResponse, tags=["agent"])
     async def process_agent(
         request: Request,
-        payload: ProcessRequest,
+        payload: Annotated[ProcessRequest, Body(openapi_examples=PROCESS_EXAMPLES)],
         orchestrator: Orchestrator = Depends(get_orchestrator),
         runtime_settings: Settings = Depends(get_settings),
         _credentials: HTTPAuthorizationCredentials | None = Security(bearer_auth),

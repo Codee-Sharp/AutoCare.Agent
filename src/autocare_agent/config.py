@@ -1,4 +1,5 @@
 from functools import lru_cache
+from urllib.parse import urlparse
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -25,6 +26,12 @@ class Settings(BaseSettings):
             raise ValueError("COMPOSER_API_KEY is required")
         if not self.composer_base_url.startswith("https://"):
             raise ValueError("COMPOSER_BASE_URL must use HTTPS")
+        parsed_url = urlparse(self.composer_base_url)
+        if parsed_url.hostname == "api.cursor.com" and parsed_url.path.rstrip("/") == "/v1/agents":
+            raise ValueError(
+                "COMPOSER_BASE_URL points to the Cursor Cloud Agents API, which is not compatible "
+                "with /chat/completions"
+            )
         if not self.composer_model.strip():
             raise ValueError("COMPOSER_MODEL cannot be blank")
         return self
